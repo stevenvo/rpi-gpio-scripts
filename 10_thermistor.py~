@@ -1,0 +1,32 @@
+#!/usr/bin/env python
+import ADC0832 as ADC
+import RPi.GPIO as GPIO
+import time
+import math
+
+sleep_time = 1
+
+def setup():
+	ADC.setup()
+
+def convert_to_temperature(adc_val):
+	Vr = 5 * float(adc_val) / 255
+        Rt = 10000 * Vr / (5 - Vr)
+        temp = 1/(((math.log(Rt / 10000)) / 3950) + (1 / (273.15+25)))
+        temp = temp - 273.15
+	return temp	
+
+def loop():
+	while True:
+		analogVal = ADC.getResult(0)
+		print 'adcval:', analogVal
+		if analogVal > 0:
+			print 'temp:', convert_to_temperature(analogVal)
+		time.sleep(sleep_time)
+
+if __name__ == '__main__':
+	try:
+		setup()
+		loop()
+	except KeyboardInterrupt: 
+		pass	
